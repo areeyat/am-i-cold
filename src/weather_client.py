@@ -88,3 +88,14 @@ class WeatherClient:
         raise WeatherClientError(
             f"Failed to fetch weather data after {self.max_retries} attempts"
         )
+
+    def get_forecast_raw(self):
+        return self._fetch()
+
+    def get_forecast_df(self):
+        data = self._fetch()
+        
+        df = pd.DataFrame.from_dict(data['hourly'])
+        df['time'] = pd.to_datetime(df['time'])
+        
+        return df

@@ -14,10 +14,12 @@ HOURLY_VARIABLES = [
     "precipitation",
     "cloudcover",
     "precipitation_probability",
+    "is_day",
+    "rain",
 ]
 
-DEFAULT_LATITUDE = 47.57
-DEFAULT_LONGITUDE = -122.39
+DEFAULT_LATITUDE = 47.5788221
+DEFAULT_LONGITUDE = -122.4112033
 
 class WeatherClientError(Exception):
     pass
@@ -29,20 +31,28 @@ class WeatherClient:
             latitude=DEFAULT_LATITUDE,
             longitude=DEFAULT_LONGITUDE,
             temperature_unit="fahrenheit",
-            windspeed_unit="mph",
+            wind_speed_unit="mph",
             timezone="America/Los_Angeles",
+            past_days = 2,
             max_retries=3,
             retry_delay=2.0,
             timeout=10,
+            precipitation_unit = "inch",
+            forecast_hours = 12,
+            past_hours = 6,
     ):
         self.latitude = latitude
         self.longitude = longitude
         self.temperature_unit = temperature_unit
-        self.windspeed_unit = windspeed_unit
+        self.wind_speed_unit = wind_speed_unit
         self.timezone = timezone
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.timeout = timeout
+        self.past_days = past_days
+        self.precipitation_unit = precipitation_unit
+        self.forecast_hours = forecast_hours
+        self.past_hours = past_hours
         
     def _build_params(self):
         return {
@@ -50,8 +60,12 @@ class WeatherClient:
             "longitude": self.longitude,
             "hourly": ",".join(HOURLY_VARIABLES),
             "temperature_unit": self.temperature_unit,
-            "windspeed_unit": self.windspeed_unit,
+            "wind_speed_unit": self.wind_speed_unit,
             "timezone": self.timezone,
+            "past_days": self.past_days,
+            "precipitation_unit": self.precipitation_unit,
+            "forecast_hours": self.forecast_hours,
+            "past_hours": self.past_hours,
         }
     
     def _fetch(self):
@@ -95,7 +109,14 @@ class WeatherClient:
     def get_forecast_df(self):
         data = self._fetch()
         
-        df = pd.DataFrame.from_dict(data['hourly'])
+        hourly = data.get("hourly", {})
+        if not hourly: 
+            raise WeatherClientError("API response missing 'hourly' data")
+
+        df = pd.DataFrame.from_dict(hourly)
         df['time'] = pd.to_datetime(df['time'])
         
         return df
+
+# main guard
+if __name__ == "__main__":

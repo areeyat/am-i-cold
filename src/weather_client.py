@@ -74,7 +74,7 @@ class WeatherClient:
         for attempt in range(1, self.max_retries + 1):
             try:
                 logger.info(
-                    "Fetching wather data (attempt %d/%d)",
+                    "Fetching weather data (attempt %d/%d)",
                     attempt,
                     self.max_retries,
                 )
@@ -120,3 +120,15 @@ class WeatherClient:
 
 # main guard
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
+    client = WeatherClient()
+    df = client.get_forecast_df()
+
+    print(f"\nhi there!")
+    print(f"there are {len(df)} hourly readings ...")
+    print(f"with a time range of {df['time'].min()} to {df['time'].max()} ...")
+    print("\ntake a look!")
+    print(df.head())
+
+

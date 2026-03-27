@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 
 DATABASE_URL = "sqlite:///data/weather.db"
 
-def create_tables(engine):
+def create_tables(engine, client):
+    clear_tbl_sql = text("""
+        DELETE FROM raw_weather_readings;
+    """)
     create_sql = text("""
         CREATE TABLE IF NOT EXISTS raw_weather_readings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,23 +33,27 @@ def create_tables(engine):
     """)
 
     with engine.connect() as conn:
+        conn.execute(clear_tbl_sql)
+        conn.commit()
+        logger.info("emptied table.")
+
         conn.execute(create_sql)
         conn.commit() # sqlalchemy doesn't auto-commit
         logger.info("Tables created (if they didn't exist)")
+        load_slow(conn, client)
 
 def load_slow(conn, client):
 
-    # maybe get rid of this later if i decide to keep historical data?
-    conn.execute(text("TRUNCATE TABLE raw_weather_readings"))
-    conn.commit()
-
-    logger.info("emptied table.")
 
     raw = client.get_forecast_raw()
     df = client.get_forecast_df()
     fetched_at = datetime.now()
 
-    insert_clause = text("INSERT INTO raw_weather_readings VALUES \
+    insert_clause = text("INSERT INTO raw_weather_readings (fetched_at, forecast_time, \
+                         latitude, longitude, \
+                         temperature_f, apparent_temp_f, humidity_pct, \
+                         windspeed_mph, precipitation_in, cloud_cover_pct, \
+                         precip_probability_pct) VALUES \
                          (:fetched_at, :forecast_time, :latitude, :longitude, \
                          :temperature_f, :apparent_temp_f, :humidity_pct, \
                          :windspeed_mph, :precipitation_in, :cloud_cover_pct, \
@@ -58,7 +65,7 @@ def load_slow(conn, client):
     row_count = 0
 
     for row in df.itertuples():
-        forecast_time = row.time
+        forecast_time = str(row.time)
         latitude = raw['latitude']
         longitude = raw['longitude'] 
         temperature_f = row.temperature_2m
@@ -94,4 +101,13 @@ def load_slow(conn, client):
 def load_fast():
     return
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    print('hello!')
+    engine = create_engine(DATABASE_URL)
+    print('engine created ...')
+    client = WeatherClient()
+    print('weather client initialized ...')
+
+    num_rows = create_tables(engine, client)
+    print('table created')

@@ -83,10 +83,15 @@ def load_slow(conn, client):
 
         row_count += 1
 
+    conn.commit()
+
     end_time = time.time()
     elapsed_time = end_time - start_time
     logger.info("loaded %d rows in %.2f seconds", row_count, elapsed_time)
     
-    
+    return row_count
+
 def load_fast():
     return
+
+#if __name__ == "__main__":

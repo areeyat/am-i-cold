@@ -35,7 +35,11 @@ def create_tables(engine):
         logger.info("Tables created (if they didn't exist)")
 
 def load_slow(conn, client):
+
+    # maybe get rid of this later if i decide to keep historical data?
     conn.execute(text("TRUNCATE TABLE raw_weather_readings"))
+    conn.commit()
+
     logger.info("emptied table.")
 
     raw = client.get_forecast_raw()
@@ -83,6 +87,6 @@ def load_slow(conn, client):
     elapsed_time = end_time - start_time
     logger.info("loaded %d rows in %.2f seconds", row_count, elapsed_time)
     
-    return
+    
 def load_fast():
     return

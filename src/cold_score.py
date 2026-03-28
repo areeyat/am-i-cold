@@ -14,7 +14,8 @@ def get_cold_score(temp):
 
 if __name__ == "__main__":
     weather_data = fetch_weather_data()
-    print(weather_data)
+    print(weather_data.columns)
+    print(weather_data['temperature_f'])
 
     
 

@@ -132,4 +132,6 @@ if __name__ == "__main__":
     
     print(df.head())
 
+    #print(client.get_forecast_raw()['hourly_units'])
+
 

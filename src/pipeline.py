@@ -12,9 +12,11 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = "sqlite:///data/weather.db"
 
 def create_tables(conn):
+
     clear_tbl_sql = text("""
         DROP TABLE IF EXISTS raw_weather_readings;
     """)
+
     create_sql = text("""
         CREATE TABLE IF NOT EXISTS raw_weather_readings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,22 +33,20 @@ def create_tables(conn):
             precip_probability_pct REAL
         )
     """)
-    num_rows = 0
-    with engine.connect() as conn:
-        conn.execute(clear_tbl_sql)
-        conn.commit()
-        logger.info("emptied table.")
 
-        conn.execute(create_sql)
-        conn.commit() # sqlalchemy doesn't auto-commit
-        logger.info("Tables created (if they didn't exist)")
-        load_slow(conn, client)
-        num_rows = conn.execute(text("SELECT COUNT(*) FROM raw_weather_readings;")).scalar()
-    return num_rows
+    conn.execute(clear_tbl_sql)
+    conn.commit()
+    logger.info("emptied table.")
+
+    conn.execute(create_sql)
+    conn.commit() # sqlalchemy doesn't auto-commit
+    logger.info("Tables created (if they didn't exist)")
+        
+    return
 
 def load_slow(conn, client):
 
-
+    # TODO: make sure the api is called once? 
     raw = client.get_forecast_raw()
     df = client.get_forecast_df()
     fetched_at = datetime.now()

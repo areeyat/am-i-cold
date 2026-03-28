@@ -46,9 +46,9 @@ def create_tables(conn):
 
 def load_slow(conn, client):
 
-    # TODO: make sure the api is called once? 
+    
     raw = client.get_forecast_raw()
-    df = client.get_forecast_df()
+    df = pd.DataFrame.from_dict(raw.get('hourly', {}))
     fetched_at = datetime.now()
 
     insert_clause = text("INSERT INTO raw_weather_readings (fetched_at, forecast_time, \

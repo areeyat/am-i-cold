@@ -13,7 +13,7 @@ DATABASE_URL = "sqlite:///data/weather.db"
 
 def create_tables(engine, client):
     clear_tbl_sql = text("""
-        DELETE FROM raw_weather_readings;
+        DROP TABLE IF EXISTS raw_weather_readings;
     """)
     create_sql = text("""
         CREATE TABLE IF NOT EXISTS raw_weather_readings (

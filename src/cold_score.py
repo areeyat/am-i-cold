@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text 
-from pipeline import fetch_weather_data
+from src.pipeline import fetch_weather_data
 
 
 def get_cold_score(temp):

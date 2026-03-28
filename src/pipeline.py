@@ -5,7 +5,7 @@ import time
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-from weather_client import WeatherClient
+from src.weather_client import WeatherClient
 
 logger = logging.getLogger(__name__)
 

@@ -31,7 +31,7 @@ def create_tables(engine, client):
             precip_probability_pct REAL
         )
     """)
-
+    num_rows = 0
     with engine.connect() as conn:
         conn.execute(clear_tbl_sql)
         conn.commit()
@@ -41,6 +41,8 @@ def create_tables(engine, client):
         conn.commit() # sqlalchemy doesn't auto-commit
         logger.info("Tables created (if they didn't exist)")
         load_slow(conn, client)
+        num_rows = conn.execute(text("SELECT COUNT(*) FROM raw_weather_readings;")).scalar()
+    return num_rows
 
 def load_slow(conn, client):
 
@@ -110,4 +112,5 @@ if __name__ == "__main__":
     print('weather client initialized ...')
 
     num_rows = create_tables(engine, client)
-    print('table created')
+    print(f'table created with {num_rows} rows')
+    

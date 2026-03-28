@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text 
-from pipeline import DATABASE_URL
+from pipeline import fetch_weather_data
 
 
 def get_cold_score(temp):
@@ -11,19 +11,10 @@ def get_cold_score(temp):
         return "chilly"
     else:
         return "soo cold"
-    
-def fetch_weather_data():
-    engine = create_engine(DATABASE_URL)
-
-    with engine.connect() as conn:
-        fetch_sql = text(""" 
-            SELECT * FROM raw_weather_readings
-        """)
-        data = conn.execute(fetch_sql)
-    return data
 
 if __name__ == "__main__":
-    weather_data = fetch_weather_data().all()
-    print(pd.DataFrame(weather_data))
+    weather_data = fetch_weather_data()
+    print(weather_data)
+
     
 

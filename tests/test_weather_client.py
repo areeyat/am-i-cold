@@ -6,3 +6,17 @@ def test_latitude_longitude_defaults():
     assert client.latitude == DEFAULT_LATITUDE
     assert client.longitude == DEFAULT_LONGITUDE
 
+def test_build_params():
+    return
+
+def test_fetch():
+    return
+
+def test_get_forecast_raw():
+    return
+
+def test_get_forecast_df():
+    return
+
+def test_raise_client_error():
+    return

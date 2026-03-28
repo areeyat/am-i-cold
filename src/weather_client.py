@@ -92,43 +92,4 @@ class WeatherClient:
             except requests.exceptions.ConnectionError: 
                 logger.warning("Connection error (attempt %d/%d)", attempt, self.max_retries)
             except requests.exceptions.HTTPError as e: 
-                logger.warning("HTTP error %s (attempt %d/%d)", e.response.status_code, attempt, self.max_retries)
-
-            if attempt < self.max_retries:
-                wait_time = self.retry_delay * attempt # backoff
-                logger.info("Retrying in %.1f seconds...", wait_time)
-                time.sleep(wait_time)
-        
-        raise WeatherClientError(
-            f"Failed to fetch weather data after {self.max_retries} attempts"
-        )
-
-    def get_forecast_raw(self):
-        return self._fetch()
-
-    def get_forecast_df(self):
-        data = self._fetch()
-        
-        hourly = data.get("hourly", {})
-        if not hourly: 
-            raise WeatherClientError("API response missing 'hourly' data")
-
-        df = pd.DataFrame.from_dict(hourly)
-        df['time'] = pd.to_datetime(df['time'])
-        
-        return df
-
-# main guard
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-
-    client = WeatherClient()
-    df = client.get_forecast_df()
-
-    print(f"\nhi there!")
-    print(f"there are {len(df)} hourly readings ...")
-    print(f"with a time range of {df['time'].min()} to {df['time'].max()} ...")
-    print("\ntake a look!")
-    print(df.head())
-
-
+                logger.warning("HTTP error %s (attem

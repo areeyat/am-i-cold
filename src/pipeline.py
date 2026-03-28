@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 DATABASE_URL = "sqlite:///data/weather.db"
 
-def create_tables(engine, client):
+def create_tables(conn):
     clear_tbl_sql = text("""
         DROP TABLE IF EXISTS raw_weather_readings;
     """)
@@ -90,6 +90,7 @@ def load_slow(conn, client):
                                      "cloud_cover_pct": cloud_cover_pct,
                                      "precip_probability_pct": precip_probability_pct})
 
+        print('.', end='')
         row_count += 1
 
     conn.commit()
@@ -111,6 +112,8 @@ if __name__ == "__main__":
     client = WeatherClient()
     print('weather client initialized ...')
 
-    num_rows = create_tables(engine, client)
-    print(f'table created with {num_rows} rows')
+    with engine.connect() as conn:
+        create_tables(conn)
+        num_rows = load_slow(conn, client)
+        print(f'table created with {num_rows} rows')
     

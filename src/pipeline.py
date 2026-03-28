@@ -104,6 +104,13 @@ def load_slow(conn, client):
 def load_fast():
     return
 
+def fetch_weather_data():
+    engine = create_engine(DATABASE_URL)
+
+    with engine.connect() as conn:
+        weather_data = pd.read_sql("SELECT * FROM raw_weather_readings",engine)
+    return weather_data
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     print('hello!')

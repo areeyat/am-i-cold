@@ -27,9 +27,4 @@ def weather():
     })
 
     '''
-    return render_template("index.html", if_cold = if_cold, cold_score = cold_score_now, 
-                           last_hr_cold_score = cold_score_past_hr, next_hr_cold_score = cold_score_next_hr)
-
-    '''
-if __name__ == "__main__":
-    app.run(debug=True)
+    return render_template("index.html", if_cold 

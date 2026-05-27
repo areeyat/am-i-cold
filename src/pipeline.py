@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime, timezone
-import time
 
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
-from weather_client import WeatherClient
+from .weather_client import WeatherClient
 
 logger = logging.getLogger(__name__)
 
@@ -101,15 +100,37 @@ def load_slow(conn, client):
     
     return row_count
 
-def load_fast():
-    return
+def load_fast(df, raw):
+    df = df.rename(columns={
+        "time": "forecast_time",
+        "temperature_2m": "temperature_f",
+        "apparent_temperature": "apparent_temp_f",
+        "relativehumidity_2m": "humidity_pct",
+        "windspeed_10m": "windspeed_mph",
+        "precipitation": "precipitation_in",
+        "cloudcover": "cloud_cover_pct",
+        "precipitation_probability": "precip_probability_pct",
+    })
+    df["fetched_at"] = datetime.now(timezone.utc).isoformat()
+    df["latitude"] = raw["latitude"]
+    df["longitude"] = raw["longitude"]
+
+    engine = create_engine(DATABASE_URL)
+    df.to_sql("raw_weather_readings", engine, if_exists="replace", index=False)
+    logger.info("loaded %d rows via load_fast", len(df))
+    return df
+
+
+def refresh_weather_data():
+    client = WeatherClient()
+    raw = client.get_forecast_raw()
+    df = pd.DataFrame.from_dict(raw.get("hourly", {}))
+    return load_fast(df, raw)
+
 
 def fetch_weather_data():
     engine = create_engine(DATABASE_URL)
-
-    with engine.connect() as conn:
-        weather_data = pd.read_sql("SELECT * FROM raw_weather_readings",engine)
-    return weather_data
+    return pd.read_sql("SELECT * FROM raw_weather_readings", engine)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
